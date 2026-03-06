@@ -12,8 +12,6 @@ vi.mock('react-dom/client', () => ({
   }
 }));
 
-vi.mock('../libraries/server', () => ({}));
-
 describe('main', () => {
   it('mounts app to #root with ThemeProvider and Root', async () => {
     const rootEl = document.createElement('div');

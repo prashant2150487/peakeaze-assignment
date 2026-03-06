@@ -1,5 +1,5 @@
 import type React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { describe, expect, it } from 'vitest';
 import { Root } from '../Root';
@@ -10,20 +10,8 @@ function renderWithTheme(ui: React.ReactElement) {
 }
 
 describe('Root', () => {
-  it('renders counter starting at 0', () => {
+  it('renders the invoice management heading', () => {
     renderWithTheme(<Root />);
-    expect(screen.getByTestId('counter-value')).toHaveTextContent('0');
-  });
-
-  it('increments counter when + is clicked', () => {
-    renderWithTheme(<Root />);
-    fireEvent.click(screen.getByRole('button', { name: /increment/i }));
-    expect(screen.getByTestId('counter-value')).toHaveTextContent('1');
-  });
-
-  it('decrements counter when - is clicked', () => {
-    renderWithTheme(<Root />);
-    fireEvent.click(screen.getByRole('button', { name: /decrement/i }));
-    expect(screen.getByTestId('counter-value')).toHaveTextContent('-1');
+    expect(screen.getByText(/Invoice Management/i)).toBeInTheDocument();
   });
 });

@@ -12,7 +12,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    project: './tsconfig.json'
+    project: ['./tsconfig.json', './tsconfig.node.json']
   },
   plugins: ['react-refresh'],
   rules: {
@@ -26,6 +26,12 @@ module.exports = {
     {
       files: ['**/*.test.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}'],
       rules: { 'import/no-extraneous-dependencies': ['error', { devDependencies: true }] }
+    },
+    {
+      files: ['vite.config.ts', 'vitest.config.ts'],
+      rules: {
+        'import/no-extraneous-dependencies': ['error', { devDependencies: true }]
+      }
     }
   ]
 };

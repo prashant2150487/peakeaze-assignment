@@ -34,25 +34,23 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.19",
     "@mui/material": "^5.14.20",
-    "bcryptjs": "^2.4.3",
-    "dayjs": "^1.11.8",
-    "jose": "^4.14.4",
-    "miragejs": "^0.1.47",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.1",
-    "uuid": "^9.0.0"
+    "react-router-dom": "^6.20.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "^5.4.0"
+    }
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
-    "@types/bcryptjs": "^2.4.2",
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
-    "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
-    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^1.6.0",
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
@@ -69,7 +67,7 @@
     "lint-staged": "^15.2.0",
     "prettier": "^3.1.1",
     "typescript": "^5.0.2",
-    "vite": "^4.3.9",
+    "vite": "^5.4.0",
     "vitest": "^1.1.0"
   }
 }
