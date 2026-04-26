@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -19,7 +19,6 @@ import {
   DialogContent,
   DialogActions,
   Chip,
-  CircularProgress,
   InputAdornment,
   Alert,
   Tooltip,
@@ -41,7 +40,7 @@ const statusColors: Record<string, 'default' | 'primary' | 'success' | 'warning'
   Paid: 'success',
 };
 
-const InvoicesPage: React.FC = () => {
+function InvoicesPage(): JSX.Element {
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const isAdmin = user?.role === 'Admin';
@@ -52,36 +51,35 @@ const InvoicesPage: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Query Params
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
-  
+  const [statusFilter, setStatusFilter] = useState('');
+
   // Modal State
   const [openModal, setOpenModal] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [modalForm, setModalForm] = useState({ customerName: '', amount: '', status: 'Draft' });
   const [modalErrors, setModalErrors] = useState({ customerName: '', amount: '' });
   const [submitting, setSubmitting] = useState(false);
-  
-  // Delete Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
 
   const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await invoiceService.getInvoices({ page, limit: 10, search, status });
+      const data = await invoiceService.getInvoices({ page, limit: 10, search, status: statusFilter });
       setInvoices(data.items);
       setTotalPages(Math.ceil(data.totalCount / 10));
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load invoices');
+    } catch (invoiceErr: unknown) {
+      const invoiceError = invoiceErr as { response?: { data?: { error?: string } } };
+      setError(invoiceError.response?.data?.error || 'Failed to load invoices');
     } finally {
       setLoading(false);
     }
-  }, [page, search, status]);
+  }, [page, search, statusFilter]);
 
   useEffect(() => {
     fetchInvoices();
@@ -129,7 +127,7 @@ const InvoicesPage: React.FC = () => {
         await invoiceService.updateInvoice(editingInvoice.id, {
           customerName: modalForm.customerName,
           amount: parseFloat(modalForm.amount),
-          status: modalForm.status as any,
+          status: modalForm.status as 'Draft' | 'Sent' | 'Paid',
         });
       } else {
         await invoiceService.createInvoice({
@@ -139,8 +137,9 @@ const InvoicesPage: React.FC = () => {
       }
       handleCloseModal();
       fetchInvoices();
-    } catch (err: any) {
-      const apiError = err.response?.data?.error || 'Operation failed';
+    } catch (operErr: unknown) {
+      const operError = operErr as { response?: { data?: { error?: string } } };
+      const apiError = operError.response?.data?.error || 'Operation failed';
       setError(apiError);
     } finally {
       setSubmitting(false);
@@ -188,8 +187,8 @@ const InvoicesPage: React.FC = () => {
           select
           label="Status"
           size="small"
-          value={status}
-          onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+          value={statusFilter}
+          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
           sx={{ minWidth: 150 }}
         >
           <MenuItem value="">All Status</MenuItem>
@@ -214,9 +213,10 @@ const InvoicesPage: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading ? (
+            {loading && invoices.length === 0 && (
               <InvoiceTableSkeleton rows={10} />
-            ) : invoices.length === 0 ? (
+            )}
+            {!loading && invoices.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
                   <Typography color="textSecondary" sx={{ mb: 2 }}>No invoices found</Typography>
@@ -232,8 +232,10 @@ const InvoicesPage: React.FC = () => {
                   )}
                 </TableCell>
               </TableRow>
-            ) : (
-              invoices.map((inv) => (
+            )}
+            {invoices.length > 0 && (
+              <>
+                {invoices.map((inv) => (
                 <TableRow 
                   key={inv.id} 
                   hover 
@@ -292,7 +294,8 @@ const InvoicesPage: React.FC = () => {
                     </Box>
                   </TableCell>
                 </TableRow>
-              ))
+                ))}
+              </>
             )}
           </TableBody>
         </Table>

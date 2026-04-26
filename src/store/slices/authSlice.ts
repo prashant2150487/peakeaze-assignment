@@ -30,25 +30,31 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{ user: User; token: string; refreshToken?: string }>
     ) => {
-      state.user = action.payload.user;
-      state.token = action.payload.token;
+      const newState = state;
+      newState.user = action.payload.user;
+      newState.token = action.payload.token;
       if (action.payload.refreshToken) {
-        state.refreshToken = action.payload.refreshToken;
+        newState.refreshToken = action.payload.refreshToken;
         localStorage.setItem('refreshToken', action.payload.refreshToken);
       }
-      state.isAuthenticated = true;
+      newState.isAuthenticated = true;
       localStorage.setItem('token', action.payload.token);
+      return newState;
     },
     setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
+      const newState = state;
+      newState.user = action.payload;
+      return newState;
     },
     logout: (state) => {
-      state.user = null;
-      state.token = null;
-      state.refreshToken = null;
-      state.isAuthenticated = false;
+      const newState = state;
+      newState.user = null;
+      newState.token = null;
+      newState.refreshToken = null;
+      newState.isAuthenticated = false;
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      return newState;
     },
   },
 });

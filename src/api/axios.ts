@@ -3,7 +3,7 @@ import { store } from "../store";
 import { setCredentials, logout } from "../store/slices/authSlice";
 
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL + "/api",
+    baseURL: `${import.meta.env.VITE_API_URL  }/api`,
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",
@@ -16,7 +16,7 @@ axiosInstance.interceptors.request.use(
         const token = localStorage.getItem("token");
 
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            config.headers.set('Authorization', `Bearer ${token}`);
         }
 
         return config;
@@ -30,8 +30,8 @@ axiosInstance.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
+        if (error.response?.status === 401 && !(originalRequest as Record<string, boolean>).retry) {
+            (originalRequest as Record<string, boolean>).retry = true;
 
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
@@ -50,11 +50,10 @@ axiosInstance.interceptors.response.use(
                 
                 // Retry the original request with new token
                 originalRequest.headers.Authorization = `Bearer ${token}`;
-                return axiosInstance(originalRequest);
+                return await axiosInstance(originalRequest);
             } catch (refreshError) {
                 // Refresh token failed, clear everything and logout
                 store.dispatch(logout());
-                console.log("Session expired, redirecting to login");
                 return Promise.reject(refreshError);
             }
         }

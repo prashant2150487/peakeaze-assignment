@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   Paper,
@@ -7,7 +6,7 @@ import {
   Skeleton,
 } from '@mui/material';
 
-const InvoiceDetailSkeleton: React.FC = () => {
+function InvoiceDetailSkeleton(): JSX.Element {
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 800, margin: '0 auto' }}>
       {/* Back Button Skeleton */}
@@ -67,6 +66,6 @@ const InvoiceDetailSkeleton: React.FC = () => {
       </Paper>
     </Box>
   );
-};
+}
 
 export default InvoiceDetailSkeleton;

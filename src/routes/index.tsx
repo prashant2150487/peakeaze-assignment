@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import BaseLayout from '../component/layout/baseLayout';
@@ -8,7 +8,7 @@ import InvoicesPage from '../pages/invoices';
 import InvoiceDetail from '../pages/invoices/detail';
 import { RootState } from '../store';
 
-const ProtectedRoute = () => {
+function ProtectedRoute(): JSX.Element {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   
   if (!isAuthenticated) {
@@ -16,9 +16,9 @@ const ProtectedRoute = () => {
   }
 
   return <Outlet />;
-};
+}
 
-const AppRoutes: React.FC = () => {
+function AppRoutes(): JSX.Element {
   return (
     <Routes>
       <Route element={<ProtectedRoute />}>
@@ -33,6 +33,6 @@ const AppRoutes: React.FC = () => {
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
-};
+}
 
 export default AppRoutes;

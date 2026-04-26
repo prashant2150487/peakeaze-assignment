@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   TableRow,
   TableCell,
@@ -10,11 +9,11 @@ interface InvoiceTableSkeletonProps {
   rows?: number;
 }
 
-const InvoiceTableSkeleton: React.FC<InvoiceTableSkeletonProps> = ({ rows = 5 }) => {
+function InvoiceTableSkeleton({ rows = 5 }: InvoiceTableSkeletonProps): JSX.Element {
   return (
     <>
       {[...Array(rows)].map((_, index) => (
-        <TableRow key={index}>
+        <TableRow key={`row-${String(index).padStart(3, '0')}`}>
           <TableCell>
             <Skeleton variant="text" width="60%" height={24} />
           </TableCell>
@@ -40,6 +39,6 @@ const InvoiceTableSkeleton: React.FC<InvoiceTableSkeletonProps> = ({ rows = 5 })
       ))}
     </>
   );
-};
+}
 
 export default InvoiceTableSkeleton;

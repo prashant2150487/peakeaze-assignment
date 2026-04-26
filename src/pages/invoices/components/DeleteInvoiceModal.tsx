@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -19,7 +19,7 @@ interface DeleteInvoiceModalProps {
   onDeleted: () => void;
 }
 
-const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({ open, onClose, invoice, onDeleted }) => {
+function DeleteInvoiceModal({ open, onClose, invoice, onDeleted }: DeleteInvoiceModalProps): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,8 +31,9 @@ const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({ open, onClose, 
       await invoiceService.deleteInvoice(invoice.id);
       onDeleted();
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete invoice. Please try again.');
+    } catch (deleteError: unknown) {
+      const deleteErr = deleteError as Record<string, Record<string, Record<string, string>>>;
+      setError(deleteErr.response?.data?.error || 'Failed to delete invoice. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -8,16 +8,15 @@ import {
   Grid,
   Divider,
   Chip,
-  CircularProgress,
   Alert,
 } from '@mui/material';
-import InvoiceDetailSkeleton from './components/InvoiceDetailSkeleton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import invoiceService, { Invoice } from '../../../api/invoiceService';
+import InvoiceDetailSkeleton from './components/InvoiceDetailSkeleton';
 
 const statusColors: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'info' | 'error'> = {
   Draft: 'default',
@@ -25,7 +24,7 @@ const statusColors: Record<string, 'default' | 'primary' | 'success' | 'warning'
   Paid: 'success',
 };
 
-const InvoiceDetail: React.FC = () => {
+function InvoiceDetail(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -39,8 +38,9 @@ const InvoiceDetail: React.FC = () => {
         setLoading(true);
         const data = await invoiceService.getInvoiceById(id);
         setInvoice(data);
-      } catch (err: any) {
-        setError(err.response?.data?.error || 'Invoice not found');
+      } catch (detailErr: unknown) {
+        const detailError = detailErr as { response?: { data?: { error?: string } } };
+        setError(detailError.response?.data?.error || 'Invoice not found');
       } finally {
         setLoading(false);
       }

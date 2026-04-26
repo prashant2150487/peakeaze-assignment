@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     Box,
     Typography,
     TextField,
     Button,
-    Link,
     Grid,
     InputAdornment,
     IconButton,
@@ -16,12 +15,12 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import authService from '../../../api/authService';
 import { setCredentials } from '../../../store/slices/authSlice';
 
-const Login: React.FC = () => {
+function Login(): JSX.Element {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -71,8 +70,9 @@ const Login: React.FC = () => {
             const res = await authService.login(email, password);
             dispatch(setCredentials({ user: res.user, token: res.token, refreshToken: res.refreshToken }));
             navigate('/');
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'Invalid email or password');
+        } catch (loginErr: unknown) {
+            const loginError = loginErr as { response?: { data?: { error?: string } } };
+            setError(loginError.response?.data?.error || 'Invalid email or password');
         } finally {
             setLoading(false);
         }
@@ -172,7 +172,7 @@ const Login: React.FC = () => {
 
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                             <Typography variant="body2" sx={{ fontWeight: 600, color: '#333' }}>Password</Typography>
-                            <Link href="#" variant="body2" sx={{ color: '#6b4ce6', textDecoration: 'none', fontWeight: 500 }}>Forgot password?</Link>
+                            <button type="button" style={{ background: 'none', border: 'none', color: '#6b4ce6', textDecoration: 'none', fontWeight: 500, cursor: 'pointer', fontSize: '0.875rem', fontFamily: 'inherit' }}>Forgot password?</button>
                         </Box>
                         <TextField
                             margin="normal"
@@ -216,16 +216,20 @@ const Login: React.FC = () => {
                         </Button>
 
                         <Typography variant="body2" align="center" sx={{ color: '#666' }}>
-                            Don't have an account?{' '}
-                            <Link component="button" variant="body2" onClick={() => navigate('/register')} sx={{ color: '#6b4ce6', textDecoration: 'none', fontWeight: 600, verticalAlign: 'baseline' }}>
-                                Create one
-                            </Link>
+                            Don&rsquo;t have an account?{' '}
+                            <Box
+                                component={RouterLink}
+                                to="/register"
+                                sx={{ color: '#6b4ce6', fontWeight: 500, cursor: 'pointer', textDecoration: 'none' }}
+                            >
+                                Sign up
+                            </Box>
                         </Typography>
                     </Box>
                 </Box>
             </Grid>
         </Grid>
     );
-};
+}
 
 export default Login;

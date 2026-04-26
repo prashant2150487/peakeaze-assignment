@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     Box,
     Typography,
     TextField,
     Button,
-    Link,
     Grid,
     InputAdornment,
     IconButton,
@@ -17,12 +16,12 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import authService from '../../../api/authService';
 import { setCredentials } from '../../../store/slices/authSlice';
 
-const Register: React.FC = () => {
+function Register(): JSX.Element {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -70,8 +69,9 @@ const Register: React.FC = () => {
             const res = await authService.register(email, password, role);
             dispatch(setCredentials({ user: res.user, token: res.token, refreshToken: res.refreshToken }));
             navigate('/');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Registration failed. Please try again.');
+        } catch (regErr: unknown) {
+            const regError = regErr as { response?: { data?: { message?: string } } };
+            setError(regError.response?.data?.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -217,15 +217,19 @@ const Register: React.FC = () => {
 
                         <Typography variant="body2" align="center" sx={{ color: '#666' }}>
                             Already have an account?{' '}
-                            <Link component="button" variant="body2" onClick={() => navigate('/login')} sx={{ color: '#6b4ce6', textDecoration: 'none', fontWeight: 600, verticalAlign: 'baseline' }}>
+                            <Box
+                                component={RouterLink}
+                                to="/login"
+                                sx={{ color: '#6b4ce6', fontWeight: 500, cursor: 'pointer', textDecoration: 'none' }}
+                            >
                                 Log in
-                            </Link>
+                            </Box>
                         </Typography>
                     </Box>
                 </Box>
             </Grid>
         </Grid>
     );
-};
+}
 
 export default Register;

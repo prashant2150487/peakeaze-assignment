@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,7 +7,7 @@ import authService from '../../api/authService';
 import { setUser } from '../../store/slices/authSlice';
 import { RootState } from '../../store';
 
-const BaseLayout: React.FC = () => {
+function BaseLayout(): JSX.Element {
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
@@ -18,7 +18,7 @@ const BaseLayout: React.FC = () => {
           const userData = await authService.getMe();
           dispatch(setUser(userData));
         } catch (err) {
-          console.error('Failed to fetch user', err);
+          // Silently fail - user will be redirected if needed
         }
       }
     };
