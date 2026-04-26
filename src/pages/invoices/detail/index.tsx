@@ -9,9 +9,9 @@ import {
   Divider,
   Chip,
   CircularProgress,
-  IconButton,
   Alert,
 } from '@mui/material';
+import InvoiceDetailSkeleton from './components/InvoiceDetailSkeleton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
@@ -50,11 +50,7 @@ const InvoiceDetail: React.FC = () => {
   }, [id]);
 
   if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-        <CircularProgress sx={{ color: '#6b4ce6' }} />
-      </Box>
-    );
+    return <InvoiceDetailSkeleton />;
   }
 
   if (error || !invoice) {

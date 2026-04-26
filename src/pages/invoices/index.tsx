@@ -28,11 +28,12 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import { useSelector } from 'react-redux';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {  Link as RouterLink, useNavigate } from 'react-router-dom';
 import { RootState } from '../../store';
 import invoiceService, { Invoice } from '../../api/invoiceService';
+import DeleteInvoiceModal from './components/DeleteInvoiceModal';
+import InvoiceTableSkeleton from './components/InvoiceTableSkeleton';
 
 const statusColors: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'info' | 'error'> = {
   Draft: 'default',
@@ -41,6 +42,7 @@ const statusColors: Record<string, 'default' | 'primary' | 'success' | 'warning'
 };
 
 const InvoicesPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const isAdmin = user?.role === 'Admin';
   const isAccountant = user?.role === 'Accountant';
@@ -63,6 +65,10 @@ const InvoicesPage: React.FC = () => {
   const [modalForm, setModalForm] = useState({ customerName: '', amount: '', status: 'Draft' });
   const [modalErrors, setModalErrors] = useState({ customerName: '', amount: '' });
   const [submitting, setSubmitting] = useState(false);
+  
+  // Delete Modal State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
 
   const fetchInvoices = useCallback(async () => {
     try {
@@ -141,15 +147,9 @@ const InvoicesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this invoice?')) {
-      try {
-        await invoiceService.deleteInvoice(id);
-        fetchInvoices();
-      } catch (err: any) {
-        alert(err.response?.data?.error || 'Delete failed');
-      }
-    }
+  const handleDelete = (invoice: Invoice) => {
+    setInvoiceToDelete(invoice);
+    setDeleteModalOpen(true);
   };
 
   return (
@@ -215,11 +215,7 @@ const InvoicesPage: React.FC = () => {
           </TableHead>
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
-                  <CircularProgress size={30} sx={{ color: '#6b4ce6' }} />
-                </TableCell>
-              </TableRow>
+              <InvoiceTableSkeleton rows={10} />
             ) : invoices.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
@@ -238,11 +234,17 @@ const InvoicesPage: React.FC = () => {
               </TableRow>
             ) : (
               invoices.map((inv) => (
-                <TableRow key={inv.id} hover>
+                <TableRow 
+                  key={inv.id} 
+                  hover 
+                  onClick={() => navigate(`/invoices/${inv.id}`)}
+                  sx={{ cursor: 'pointer' }}
+                >
                   <TableCell sx={{ fontWeight: 500 }}>
                     <RouterLink 
                       to={`/invoices/${inv.id}`} 
                       style={{ color: '#6b4ce6', textDecoration: 'none', fontWeight: 'bold' }}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       {inv.invoiceNumber}
                     </RouterLink>
@@ -262,14 +264,27 @@ const InvoicesPage: React.FC = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                       {canCreateOrEdit && (
                         <Tooltip title="Edit">
-                          <IconButton size="small" onClick={() => handleOpenModal(inv)}>
+                          <IconButton 
+                            size="small" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenModal(inv);
+                            }}
+                          >
                             <EditIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                       )}
                       {canDelete && (
                         <Tooltip title="Delete">
-                          <IconButton size="small" color="error" onClick={() => handleDelete(inv.id)}>
+                          <IconButton 
+                            size="small" 
+                            color="error" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(inv);
+                            }}
+                          >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
@@ -342,6 +357,17 @@ const InvoicesPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteInvoiceModal 
+        open={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setInvoiceToDelete(null);
+        }}
+        invoice={invoiceToDelete}
+        onDeleted={fetchInvoices}
+      />
     </Box>
   );
 };
