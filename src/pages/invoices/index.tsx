@@ -28,11 +28,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useSelector } from 'react-redux';
-import {  Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { RootState } from '../../store';
 import invoiceService, { Invoice } from '../../api/invoiceService';
-import DeleteInvoiceModal from './components/DeleteInvoiceModal';
-import InvoiceTableSkeleton from './components/InvoiceTableSkeleton';
+import InvoiceTableSkeleton from './InvoiceTableSkeleton';
+import useDebounce from '../../hooks/useDebounce';
+import DeleteInvoiceModal from './DeleteInvoiceModal';
 
 const statusColors: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'info' | 'error'> = {
   Draft: 'default',
@@ -52,13 +53,16 @@ function InvoicesPage(): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Query Params
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
   const [statusFilter, setStatusFilter] = useState('');
 
-  // Modal State
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter]);
+
   const [openModal, setOpenModal] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [modalForm, setModalForm] = useState({ customerName: '', amount: '', status: 'Draft' });
@@ -70,8 +74,20 @@ function InvoicesPage(): JSX.Element {
   const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await invoiceService.getInvoices({ page, limit: 10, search, status: statusFilter });
-      setInvoices(data.items);
+      const data = await invoiceService.getInvoices({ page, limit: 10, search: debouncedSearch, status: statusFilter });
+
+      // Client-side sorting as required
+      const statusOrder = { 'Draft': 1, 'Sent': 2, 'Paid': 3 };
+      const sortedItems = [...data.items].sort((a, b) => {
+        // First sort by status order
+        const statusDiff = (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
+        if (statusDiff !== 0) return statusDiff;
+
+        // Then by creation time (newest first)
+        return b.createdAt - a.createdAt;
+      });
+
+      setInvoices(sortedItems);
       setTotalPages(Math.ceil(data.totalCount / 10));
     } catch (invoiceErr: unknown) {
       const invoiceError = invoiceErr as { response?: { data?: { error?: string } } };
@@ -79,7 +95,7 @@ function InvoicesPage(): JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, [page, search, statusFilter]);
+  }, [page, debouncedSearch, statusFilter]);
 
   useEffect(() => {
     fetchInvoices();
@@ -120,7 +136,7 @@ function InvoicesPage(): JSX.Element {
 
   const handleModalSubmit = async () => {
     if (!validateModal()) return;
-    
+
     try {
       setSubmitting(true);
       if (editingInvoice) {
@@ -155,7 +171,7 @@ function InvoicesPage(): JSX.Element {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h4" fontWeight="bold">Invoices</Typography>
-        {/* {canCreateOrEdit && ( */}
+        {canCreateOrEdit && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -164,7 +180,7 @@ function InvoicesPage(): JSX.Element {
           >
             Create Invoice
           </Button>
-        {/* )} */}
+        )}
       </Box>
 
       {/* Filters */}
@@ -173,7 +189,7 @@ function InvoicesPage(): JSX.Element {
           placeholder="Search by customer..."
           size="small"
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          onChange={(e) => setSearch(e.target.value)}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -188,7 +204,7 @@ function InvoicesPage(): JSX.Element {
           label="Status"
           size="small"
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+          onChange={(e) => setStatusFilter(e.target.value)}
           sx={{ minWidth: 150 }}
         >
           <MenuItem value="">All Status</MenuItem>
@@ -236,64 +252,64 @@ function InvoicesPage(): JSX.Element {
             {invoices.length > 0 && (
               <>
                 {invoices.map((inv) => (
-                <TableRow 
-                  key={inv.id} 
-                  hover 
-                  onClick={() => navigate(`/invoices/${inv.id}`)}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  <TableCell sx={{ fontWeight: 500 }}>
-                    <RouterLink 
-                      to={`/invoices/${inv.id}`} 
-                      style={{ color: '#6b4ce6', textDecoration: 'none', fontWeight: 'bold' }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {inv.invoiceNumber}
-                    </RouterLink>
-                  </TableCell>
-                  <TableCell>{inv.customerName}</TableCell>
-                  <TableCell>${inv.amount.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={inv.status}
-                      size="small"
-                      color={statusColors[inv.status]}
-                      sx={{ fontWeight: 600, borderRadius: 1.5 }}
-                    />
-                  </TableCell>
-                  <TableCell>{new Date(inv.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell align="right">
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                      {canCreateOrEdit && (
-                        <Tooltip title="Edit">
-                          <IconButton 
-                            size="small" 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenModal(inv);
-                            }}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      {canDelete && (
-                        <Tooltip title="Delete">
-                          <IconButton 
-                            size="small" 
-                            color="error" 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(inv);
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </Box>
-                  </TableCell>
-                </TableRow>
+                  <TableRow
+                    key={inv.id}
+                    hover
+                    onClick={() => navigate(`/invoices/${inv.id}`)}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    <TableCell sx={{ fontWeight: 500 }}>
+                      <RouterLink
+                        to={`/invoices/${inv.id}`}
+                        style={{ color: '#6b4ce6', textDecoration: 'none', fontWeight: 'bold' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {inv.invoiceNumber}
+                      </RouterLink>
+                    </TableCell>
+                    <TableCell>{inv.customerName}</TableCell>
+                    <TableCell>${inv.amount.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={inv.status}
+                        size="small"
+                        color={statusColors[inv.status]}
+                        sx={{ fontWeight: 600, borderRadius: 1.5 }}
+                      />
+                    </TableCell>
+                    <TableCell>{new Date(inv.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell align="right">
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                        {canCreateOrEdit && (
+                          <Tooltip title="Edit">
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenModal(inv);
+                              }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {canDelete && (
+                          <Tooltip title="Delete">
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(inv);
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
                 ))}
               </>
             )}
@@ -362,7 +378,7 @@ function InvoicesPage(): JSX.Element {
       </Dialog>
 
       {/* Delete Confirmation Modal */}
-      <DeleteInvoiceModal 
+      <DeleteInvoiceModal
         open={deleteModalOpen}
         onClose={() => {
           setDeleteModalOpen(false);

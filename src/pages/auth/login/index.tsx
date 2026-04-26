@@ -82,7 +82,6 @@ function Login(): JSX.Element {
         <Grid container component="main" sx={{ height: '100vh', backgroundColor: '#F8F9FA' }}>
             <CssBaseline />
 
-            {/* Left Side - Branding */}
             <Grid
                 item
                 xs={false}
@@ -134,7 +133,6 @@ function Login(): JSX.Element {
                 </Box>
             </Grid>
 
-            {/* Right Side - Login Form */}
             <Grid item xs={12} sm={8} md={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <Box sx={{ width: '100%', maxWidth: 400, px: 3 }}>
                     <Box sx={{ textAlign: 'center', mb: 4 }}>

@@ -18,18 +18,16 @@ function Header(): JSX.Element {
   return (
     <AppBar position="sticky" color="transparent" elevation={0} sx={{ borderBottom: '1px solid #eaeaea', backgroundColor: '#fff', top: 0, zIndex: 1100 }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
-        {/* Left Side - Logo */}
         <Box
           onClick={() => navigate('/')}
           sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }}
         >
           <CenterFocusStrongIcon sx={{ fontSize: 28, color: '#6b4ce6' }} />
           <Typography variant="h6" fontWeight="bold" letterSpacing={1} sx={{ color: '#1a1a1a' }}>
-            EAZYCAPTURE
+            Envoice App
           </Typography>
         </Box>
 
-        {/* Right Side - Auth Buttons */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {isAuthenticated ? (
             <>

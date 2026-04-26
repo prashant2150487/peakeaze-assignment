@@ -18,8 +18,7 @@ const authService = {
     },
 
     refreshToken: async (token: string) => {
-        // Using standard axios to avoid interceptor loops
-        const res = await axios.post(`${import.meta.env.VITE_API_URL  }/api/auth/refresh`, {}, {
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/refresh`, {}, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return res.data;

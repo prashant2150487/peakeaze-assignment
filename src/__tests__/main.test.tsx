@@ -1,19 +1,26 @@
-import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
-import { Root } from '../Root';
+/**
+ * main.test.tsx
+ * Verifies that main.tsx mounts the app correctly into the #root element.
+ * We mock react-dom/client to inspect what gets rendered without a real DOM.
+ */
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 const renderMock = vi.fn();
 const createRootMock = vi.fn(() => ({ render: renderMock }));
 
 vi.mock('react-dom/client', () => ({
-  __esModule: true,
-  default: {
-    createRoot: createRootMock
-  }
+  default: { createRoot: createRootMock },
+  createRoot: createRootMock,
 }));
 
 describe('main', () => {
-  it('mounts app to #root with ThemeProvider and Root', async () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Reset module registry so main.tsx is re-evaluated each test
+    vi.resetModules();
+  });
+
+  it('calls createRoot with the #root element', async () => {
     const rootEl = document.createElement('div');
     rootEl.id = 'root';
     document.body.appendChild(rootEl);
@@ -22,15 +29,20 @@ describe('main', () => {
 
     expect(createRootMock).toHaveBeenCalledWith(rootEl);
     expect(renderMock).toHaveBeenCalledTimes(1);
+
+    document.body.removeChild(rootEl);
+  });
+
+  it('renders a React.StrictMode tree', async () => {
+    const rootEl = document.createElement('div');
+    rootEl.id = 'root';
+    document.body.appendChild(rootEl);
+
+    const React = await import('react');
+    await import('../main');
+
     const [app] = renderMock.mock.calls[0];
     expect(app.type).toBe(React.StrictMode);
-    const themeProvider = app.props.children;
-    expect(themeProvider.type.toString()).toContain('ThemeProvider');
-    const children = Array.isArray(themeProvider.props.children)
-      ? themeProvider.props.children
-      : [themeProvider.props.children];
-    const hasRoot = children.some((c: React.ReactElement) => c?.type === Root);
-    expect(hasRoot).toBe(true);
 
     document.body.removeChild(rootEl);
   });

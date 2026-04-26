@@ -10,11 +10,11 @@ import {
   CircularProgress,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import invoiceService, { Invoice } from '../../../api/invoiceService';
+import invoiceService, { Invoice } from '../../api/invoiceService';
 
 interface DeleteInvoiceModalProps {
   open: boolean;
-  onClose: () => void;
+  onClose: () => void;  
   invoice: Invoice | null;
   onDeleted: () => void;
 }

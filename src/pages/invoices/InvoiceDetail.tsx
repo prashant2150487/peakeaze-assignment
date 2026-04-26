@@ -15,8 +15,8 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import invoiceService, { Invoice } from '../../../api/invoiceService';
-import InvoiceDetailSkeleton from './components/InvoiceDetailSkeleton';
+import invoiceService, { Invoice } from '../../api/invoiceService';
+import InvoiceDetailSkeleton from './InvoiceDetailSkeleton';
 
 const statusColors: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'info' | 'error'> = {
   Draft: 'default',

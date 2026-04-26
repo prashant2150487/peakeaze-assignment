@@ -5,12 +5,12 @@ import BaseLayout from '../component/layout/baseLayout';
 import Login from '../pages/auth/login';
 import Register from '../pages/auth/register';
 import InvoicesPage from '../pages/invoices';
-import InvoiceDetail from '../pages/invoices/detail';
+import InvoiceDetail from '../pages/invoices/InvoiceDetail';
 import { RootState } from '../store';
 
 function ProtectedRoute(): JSX.Element {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -29,7 +29,6 @@ function AppRoutes(): JSX.Element {
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      {/* Catch all route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

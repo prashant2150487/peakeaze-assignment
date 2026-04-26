@@ -3,14 +3,13 @@ import { store } from "../store";
 import { setCredentials, logout } from "../store/slices/authSlice";
 
 const axiosInstance = axios.create({
-    baseURL: `${import.meta.env.VITE_API_URL  }/api`,
+    baseURL: `${import.meta.env.VITE_API_URL}/api`,
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",
     },
 });
 
-// Request interceptor (attach token)
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
@@ -24,7 +23,6 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response interceptor (handle errors globally)
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {

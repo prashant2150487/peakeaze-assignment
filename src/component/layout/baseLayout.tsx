@@ -18,7 +18,8 @@ function BaseLayout(): JSX.Element {
           const userData = await authService.getMe();
           dispatch(setUser(userData));
         } catch (err) {
-          // Silently fail - user will be redirected if needed
+          // eslint-disable-next-line no-console
+          console.error(err);
         }
       }
     };
