@@ -216,32 +216,64 @@ function InvoicesPage(): JSX.Element {
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-        <Table>
-          <TableHead sx={{ backgroundColor: '#f8f9fa' }}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          borderRadius: 2,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+          overflowX: "auto",
+        }}
+      >
+        <Table sx={{ minWidth: { xs: 700, sm: "100%" } }}>
+          <TableHead sx={{ backgroundColor: "#f8f9fa" }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: 'bold' }}>Invoice #</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Customer</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Amount</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align="right">Actions</TableCell>
+              <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+                Invoice #
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+                Customer
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+                Amount
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+                Status
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+                Date
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}
+                align="right"
+              >
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
+
           <TableBody>
             {loading && invoices.length === 0 && (
               <InvoiceTableSkeleton rows={10} />
             )}
+
             {!loading && invoices.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
-                  <Typography color="textSecondary" sx={{ mb: 2 }}>No invoices found</Typography>
+                  <Typography color="textSecondary" sx={{ mb: 2 }}>
+                    No invoices found
+                  </Typography>
+
                   {canCreateOrEdit && (
                     <Button
                       variant="outlined"
                       startIcon={<AddIcon />}
                       onClick={() => handleOpenModal()}
-                      sx={{ borderColor: '#6b4ce6', color: '#6b4ce6', textTransform: 'none', borderRadius: 2 }}
+                      sx={{
+                        borderColor: "#6b4ce6",
+                        color: "#6b4ce6",
+                        textTransform: "none",
+                        borderRadius: 2,
+                      }}
                     >
                       Create Your First Invoice
                     </Button>
@@ -249,70 +281,90 @@ function InvoicesPage(): JSX.Element {
                 </TableCell>
               </TableRow>
             )}
-            {invoices.length > 0 && (
-              <>
-                {invoices.map((inv) => (
-                  <TableRow
-                    key={inv.id}
-                    hover
-                    onClick={() => navigate(`/invoices/${inv.id}`)}
-                    sx={{ cursor: 'pointer' }}
+
+            {invoices.map((inv) => (
+              <TableRow
+                key={inv.id}
+                hover
+                onClick={() => navigate(`/invoices/${inv.id}`)}
+                sx={{ cursor: "pointer" }}
+              >
+                <TableCell sx={{ fontWeight: 500, whiteSpace: "nowrap" }}>
+                  <RouterLink
+                    to={`/invoices/${inv.id}`}
+                    style={{
+                      color: "#6b4ce6",
+                      textDecoration: "none",
+                      fontWeight: "bold",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <TableCell sx={{ fontWeight: 500 }}>
-                      <RouterLink
-                        to={`/invoices/${inv.id}`}
-                        style={{ color: '#6b4ce6', textDecoration: 'none', fontWeight: 'bold' }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {inv.invoiceNumber}
-                      </RouterLink>
-                    </TableCell>
-                    <TableCell>{inv.customerName}</TableCell>
-                    <TableCell>${inv.amount.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={inv.status}
-                        size="small"
-                        color={statusColors[inv.status]}
-                        sx={{ fontWeight: 600, borderRadius: 1.5 }}
-                      />
-                    </TableCell>
-                    <TableCell>{new Date(inv.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell align="right">
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        {canCreateOrEdit && (
-                          <Tooltip title="Edit">
-                            <IconButton
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenModal(inv);
-                              }}
-                            >
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        {canDelete && (
-                          <Tooltip title="Delete">
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(inv);
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </>
-            )}
+                    {inv.invoiceNumber}
+                  </RouterLink>
+                </TableCell>
+
+                <TableCell sx={{ whiteSpace: "nowrap" }}>
+                  {inv.customerName}
+                </TableCell>
+
+                <TableCell sx={{ whiteSpace: "nowrap" }}>
+                  ${inv.amount.toLocaleString()}
+                </TableCell>
+
+                <TableCell sx={{ whiteSpace: "nowrap" }}>
+                  <Chip
+                    label={inv.status}
+                    size="small"
+                    color={statusColors[inv.status]}
+                    sx={{ fontWeight: 600, borderRadius: 1.5 }}
+                  />
+                </TableCell>
+
+                <TableCell sx={{ whiteSpace: "nowrap" }}>
+                  {new Date(inv.createdAt).toLocaleDateString()}
+                </TableCell>
+
+                <TableCell align="right">
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      gap: 1,
+                      flexWrap: "nowrap",
+                    }}
+                  >
+                    {canCreateOrEdit && (
+                      <Tooltip title="Edit">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenModal(inv);
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+
+                    {canDelete && (
+                      <Tooltip title="Delete">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(inv);
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

@@ -31,7 +31,7 @@ function Header(): JSX.Element {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {isAuthenticated ? (
             <>
-              <Typography variant="body2" sx={{ color: '#666', fontWeight: 500 }}>
+              <Typography variant="body2" sx={{ color: '#666', fontWeight: 500, display: { xs: "none", md : "block"} }} >
                 {user?.email}
               </Typography>
               <Button
