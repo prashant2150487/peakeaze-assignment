@@ -150,7 +150,6 @@ function Login(): JSX.Element {
                             fullWidth
                             id="email"
                             placeholder="you@company.com"
-                            defaultValue="user@example.com"
                             name="email"
                             autoComplete="email"
                             autoFocus
@@ -177,7 +176,6 @@ function Login(): JSX.Element {
                             required
                             fullWidth
                             name="password"
-                            defaultValue="secret123"
                             placeholder="Enter your password"
                             type={showPassword ? 'text' : 'password'}
                             id="password"
