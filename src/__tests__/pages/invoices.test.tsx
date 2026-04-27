@@ -1,6 +1,6 @@
 
 import { screen, waitFor} from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import InvoicesPage from '../../pages/invoices';
 import { renderWithProviders } from '../utils/renderWithProviders';
 import invoiceService from '../../api/invoiceService';
@@ -42,7 +42,7 @@ const mockInvoices = {
 describe('InvoicesPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (invoiceService.getInvoices as vi.Mock).mockResolvedValue(mockInvoices);
+    (invoiceService.getInvoices as Mock).mockResolvedValue(mockInvoices);
   });
 
   it('renders invoices list correctly', async () => {

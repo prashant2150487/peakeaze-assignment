@@ -1,8 +1,4 @@
-/**
- * main.test.tsx
- * Verifies that main.tsx mounts the app correctly into the #root element.
- * We mock react-dom/client to inspect what gets rendered without a real DOM.
- */
+
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 const renderMock = vi.fn();
@@ -16,7 +12,6 @@ vi.mock('react-dom/client', () => ({
 describe('main', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset module registry so main.tsx is re-evaluated each test
     vi.resetModules();
   });
 
